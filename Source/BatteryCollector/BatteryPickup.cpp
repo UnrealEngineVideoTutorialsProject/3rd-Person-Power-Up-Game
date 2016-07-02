@@ -3,6 +3,7 @@
 #include "BatteryCollector.h"
 #include "BatteryPickup.h"
 
+
 //Set default values
 ABatteryPickup::ABatteryPickup()
 {
@@ -10,3 +11,10 @@ ABatteryPickup::ABatteryPickup()
 }
 
 
+void ABatteryPickup::WasCollected_Implementation()
+{
+	// Use the base pickup behavior
+	Super::WasCollected_Implementation();
+	// Destroy the battery
+	Destroy();
+}
