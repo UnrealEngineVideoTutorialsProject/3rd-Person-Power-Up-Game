@@ -99,4 +99,65 @@ void ABatteryCollectorGameMode::SetCurrentState(EBatteryPlayState NewState)
 {
 	//set current state
 	CurrentState = NewState;
+	// handle the new current state
+	HandleNewState(CurrentState);
+
+}
+
+void ABatteryCollectorGameMode::HandleNewState(EBatteryPlayState NewState)
+{
+	switch (NewState)
+	{
+	// If the game is playing
+	case EBatteryPlayState::EPlaying:
+	{
+		// spawn volumes active
+		for (ASpawnVolume* Volume : SpawnVolumeActors)
+		{
+			Volume->SetSpawningActive(true);
+		}
+	}
+	break;
+	// If we've won the game
+	case EBatteryPlayState::EWon:
+	{
+		// spawn volumes inactive
+		for (ASpawnVolume* Volume : SpawnVolumeActors)
+		{
+			Volume->SetSpawningActive(false);
+		}
+	}
+	break;
+	// If we've lost the game
+	case EBatteryPlayState::EGameOver:
+	{
+		// spawn volumes inactive
+		for (ASpawnVolume* Volume : SpawnVolumeActors)
+		{
+			Volume->SetSpawningActive(false);
+		}
+		// block player input
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if (PlayerController)
+		{
+			PlayerController->SetCinematicMode(true, false, false, true, true);
+		}
+		// ragdoll the character
+		ACharacter* MyCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+		if (MyCharacter)
+		{
+			MyCharacter->GetMesh()->SetSimulatePhysics(true);
+			MyCharacter->GetMovementComponent()->MovementState.bCanJump = false;
+		}
+	}
+	break;
+	// Unknown/default state
+	default:
+	case EBatteryPlayState::EUnknown:
+	{
+		// do nothing
+	}
+	break;
+	}
+
 }
