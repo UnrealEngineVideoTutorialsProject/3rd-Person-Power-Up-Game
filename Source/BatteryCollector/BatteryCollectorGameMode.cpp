@@ -5,6 +5,7 @@
 #include "BatteryCollectorCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "SpawnVolume.h"
 
 ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 {
@@ -22,6 +23,20 @@ ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 void ABatteryCollectorGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// find all spawn volume Actors
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundActors);
+
+	for (auto Actor : FoundActors)
+	{
+		ASpawnVolume* SpawnVolumeActor = Cast<ASpawnVolume>(Actor);
+		if (SpawnVolumeActor)
+		{
+			SpawnVolumeActors.AddUnique(SpawnVolumeActor);
+		}
+	}
+
 	SetCurrentState(EBatteryPlayState::EPlaying);
 
 	ABatteryCollectorCharacter* MyCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
